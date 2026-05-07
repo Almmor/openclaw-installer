@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw Installer - 一键安装器</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🐾</span>
+                <span class="logo-text">OpenClaw</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-page="home">
+                    <span class="nav-icon">🏠</span>
+                    <span>首页</span>
+                </a>
+                <a href="#" class="nav-item" data-page="plugins">
+                    <span class="nav-icon">🔌</span>
+                    <span>插件管理</span>
+                </a>
+                <a href="#" class="nav-item" data-page="settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span>设置</span>
+                </a>
+                <a href="#" class="nav-item" data-page="about">
+                    <span class="nav-icon">ℹ️</span>
+                    <span>关于</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="version">v1.0.0</div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 顶部栏 -->
+            <header class="header">
+                <h1 class="page-title">欢迎使用 OpenClaw 安装器</h1>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="checkUpdateBtn">
+                        <span>🔄</span> 检查更新
+                    </button>
+                </div>
+            </header>
+
+            <!-- 首页内容 -->
+            <div class="page active" id="home-page">
+                <!-- OpenClaw 主卡片 -->
+                <div class="hero-card">
+                    <div class="hero-content">
+                        <div class="hero-icon">🐾</div>
+                        <div class="hero-info">
+                            <h2>OpenClaw</h2>
+                            <p class="hero-description">强大的开源自动化框架，支持丰富的插件生态系统</p>
+                            <div class="hero-meta">
+                                <span class="version-badge">v3.2.1</span>
+                                <span class="size-badge">📦 45.8 MB</span>
+                            </div>
+                            <div class="requirements">
+                                <span class="req-title">系统要求：</span>
+                                <span class="req-item">Node.js >= 16.0</span>
+                                <span class="req-item">Python >= 3.8</span>
+                                <span class="req-item">Git</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-actions">
+                        <div class="install-path">
+                            <label>安装路径：</label>
+                            <div class="path-input-group">
+                                <input type="text" id="installPath" value="C:\Program Files\OpenClaw" readonly>
+                                <button class="btn btn-outline" id="selectPathBtn">浏览</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-large" id="installOpenClawBtn">
+                            <span class="btn-icon">⬇️</span>
+                            <span>一键安装 OpenClaw</span>
+                        </button>
+                        <button class="btn btn-success btn-large hidden" id="installedBtn" disabled>
+                            <span class="btn-icon">✅</span>
+                            <span>已安装</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 快速安装区域 -->
+                <div class="quick-install-section">
+                    <div class="section-header">
+                        <h3>🚀 快速安装</h3>
+                        <p>选择需要的插件，一键完成安装</p>
+                    </div>
+                    <div class="plugin-grid" id="quickPluginGrid">
+                        <!-- 插件卡片将通过 JS 动态生成 -->
+                    </div>
+                    <div class="quick-install-actions">
+                        <button class="btn btn-primary btn-large" id="installAllBtn">
+                            <span class="btn-icon">🚀</span>
+                            <span>一键安装选中插件</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 安装进度 -->
+                <div class="install-progress hidden" id="installProgress">
+                    <div class="progress-header">
+                        <span class="progress-title">正在安装...</span>
+                        <span class="progress-percent" id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-message" id="progressMessage">准备中...</div>
+                    <div class="progress-details" id="progressDetails"></div>
+                </div>
+            </div>
+
+            <!-- 插件管理页面 -->
+            <div class="page" id="plugins-page">
+                <div class="page-header">
+                    <h2>插件管理</h2>
+                    <div class="filter-tabs">
+                        <button class="tab active" data-filter="all">全部</button>
+                        <button class="tab" data-filter="installed">已安装</button>
+                        <button class="tab" data-filter="available">可安装</button>
+                    </div>
+                </div>
+                <div class="plugin-list" id="pluginList">
+                    <!-- 插件列表将通过 JS 动态生成 -->
+                </div>
+            </div>
+
+            <!-- 设置页面 -->
+            <div class="page" id="settings-page">
+                <div class="settings-container">
+                    <h2>设置</h2>
+                    <div class="settings-section">
+                        <h3>常规设置</h3>
+                        <div class="setting-item">
+                            <label class="setting-label">
+                                <span>自动检查更新</span>
+                                <span class="setting-desc">启动时自动检查 OpenClaw 和插件更新</span>
+                            </label>
+                            <label class="toggle">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label class="setting-label">
+                                <span>显示安装日志</span>
+                                <span class="setting-desc">安装过程中显示详细日志信息</span>
+                            </label>
+                            <label class="toggle">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h3>下载设置</h3>
+                        <div class="setting-item">
+                            <label class="setting-label">
+                                <span>下载源</span>
+                                <span class="setting-desc">选择软件包下载源</span>
+                            </label>
+                            <select class="setting-select">
+                                <option value="github">GitHub (默认)</option>
+                                <option value="gitee">Gitee (国内镜像)</option>
+                                <option value="custom">自定义</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label class="setting-label">
+                                <span>并发下载数</span>
+                                <span class="setting-desc">同时下载的插件数量</span>
+                            </label>
+                            <input type="number" class="setting-input" value="3" min="1" max="10">
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h3>存储设置</h3>
+                        <div class="setting-item">
+                            <label class="setting-label">
+                                <span>默认安装路径</span>
+                                <span class="setting-desc">软件和插件的默认安装位置</span>
+                            </label>
+                            <div class="path-input-group">
+                                <input type="text" class="setting-input" value="C:\Program Files\OpenClaw" readonly>
+                                <button class="btn btn-outline">更改</button>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <label class="setting-label">
+                                <span>缓存目录</span>
+                                <span class="setting-desc">下载文件的临时存储位置</span>
+                            </label>
+                            <div class="path-input-group">
+                                <input type="text" class="setting-input" value="%TEMP%\OpenClaw" readonly>
+                                <button class="btn btn-outline">清理</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 关于页面 -->
+            <div class="page" id="about-page">
+                <div class="about-container">
+                    <div class="about-header">
+                        <div class="about-logo">🐾</div>
+                        <h2>OpenClaw Installer</h2>
+                        <p class="about-version">版本 1.0.0</p>
+                    </div>
+                    <div class="about-content">
+                        <p>OpenClaw Installer 是一个简洁现代的桌面应用程序，帮助用户轻松安装和管理 OpenClaw 框架及其插件。</p>
+                        <div class="about-features">
+                            <h3>主要功能</h3>
+                            <ul>
+                                <li>✅ 一键安装 OpenClaw 框架</li>
+                                <li>🔌 便捷的插件管理</li>
+                                <li>📦 批量安装多个插件</li>
+                                <li>🔄 自动检查更新</li>
+                                <li>🎨 简洁现代的用户界面</li>
+                            </ul>
+                        </div>
+                        <div class="about-links">
+                            <h3>相关链接</h3>
+                            <div class="link-list">
+                                <a href="#" class="about-link" id="openWebsite">
+                                    <span>🌐</span> 官方网站
+                                </a>
+                                <a href="#" class="about-link" id="openDocs">
+                                    <span>📖</span> 文档中心
+                                </a>
+                                <a href="#" class="about-link" id="openGithub">
+                                    <span>🐙</span> GitHub
+                                </a>
+                                <a href="#" class="about-link" id="reportIssue">
+                                    <span>🐛</span> 问题反馈
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="about-footer">
+                        <p>© 2024 OpenClaw Team. All rights reserved.</p>
+                        <p>Licensed under MIT License</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 通知 Toast -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
