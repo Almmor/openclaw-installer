@@ -1,6 +1,6 @@
 {
   "name": "openclaw-installer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "OpenClaw 一键安装器 - 简洁现代的插件管理工具",
   "main": "src/main.js",
   "scripts": {
@@ -9,7 +9,8 @@
     "build:win": "electron-builder --win",
     "build:mac": "electron-builder --mac",
     "build:linux": "electron-builder --linux",
-    "dist": "npm run build:win"
+    "build:all": "electron-builder -mwl",
+    "dist": "npm run build:all"
   },
   "keywords": [
     "openclaw",
@@ -17,7 +18,7 @@
     "plugin-manager",
     "desktop-app"
   ],
-  "author": "OpenClaw Installer",
+  "author": "Almmor",
   "license": "MIT",
   "devDependencies": {
     "electron": "^28.0.0",
@@ -37,6 +38,7 @@
       "assets/**/*",
       "package.json"
     ],
+    "icon": "assets/icon.ico",
     "win": {
       "target": [
         {
@@ -68,7 +70,11 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "OpenClaw Installer"
+      "shortcutName": "OpenClaw Installer",
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
+      "menuCategory": "OpenClaw"
     }
   }
 }

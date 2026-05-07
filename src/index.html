@@ -11,13 +11,17 @@
         <!-- 侧边栏 -->
         <aside class="sidebar">
             <div class="logo">
-                <span class="logo-icon">🐾</span>
+                <img src="../assets/icon.png" alt="OpenClaw" class="logo-img">
                 <span class="logo-text">OpenClaw</span>
             </div>
             <nav class="nav-menu">
                 <a href="#" class="nav-item active" data-page="home">
                     <span class="nav-icon">🏠</span>
                     <span>首页</span>
+                </a>
+                <a href="#" class="nav-item" data-page="manage">
+                    <span class="nav-icon">🎛️</span>
+                    <span>管理</span>
                 </a>
                 <a href="#" class="nav-item" data-page="plugins">
                     <span class="nav-icon">🔌</span>
@@ -33,22 +37,15 @@
                 </a>
             </nav>
             <div class="sidebar-footer">
-                <div class="version">v1.0.0</div>
+                <button class="btn btn-secondary btn-small" id="checkUpdateBtn">
+                    <span>🔄</span> 检查更新
+                </button>
+                <div class="version">v1.1.0</div>
             </div>
         </aside>
 
         <!-- 主内容区 -->
         <main class="main-content">
-            <!-- 顶部栏 -->
-            <header class="header">
-                <h1 class="page-title">欢迎使用 OpenClaw 安装器</h1>
-                <div class="header-actions">
-                    <button class="btn btn-secondary" id="checkUpdateBtn">
-                        <span>🔄</span> 检查更新
-                    </button>
-                </div>
-            </header>
-
             <!-- 首页内容 -->
             <div class="page active" id="home-page">
                 <!-- OpenClaw 主卡片 -->
@@ -86,6 +83,10 @@
                             <span class="btn-icon">✅</span>
                             <span>已安装</span>
                         </button>
+                        <button class="btn btn-warning btn-large hidden" id="manageOpenClawBtn">
+                            <span class="btn-icon">🎛️</span>
+                            <span>管理 OpenClaw</span>
+                        </button>
                     </div>
                 </div>
 
@@ -117,6 +118,75 @@
                     </div>
                     <div class="progress-message" id="progressMessage">准备中...</div>
                     <div class="progress-details" id="progressDetails"></div>
+                </div>
+            </div>
+
+            <!-- 管理页面 -->
+            <div class="page" id="manage-page">
+                <div class="manage-container">
+                    <h2>OpenClaw 管理</h2>
+                    
+                    <!-- OpenClaw 状态卡片 -->
+                    <div class="manage-card">
+                        <div class="manage-header">
+                            <div class="manage-icon">🐾</div>
+                            <div class="manage-info">
+                                <h3>OpenClaw</h3>
+                                <p class="manage-version">v3.2.1</p>
+                            </div>
+                            <div class="manage-status">
+                                <span class="status-indicator installed"></span>
+                                <span>已安装</span>
+                            </div>
+                        </div>
+                        <div class="manage-details">
+                            <div class="detail-item">
+                                <span class="detail-label">安装路径：</span>
+                                <span class="detail-value" id="manageInstallPath">C:\Program Files\OpenClaw</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">已安装插件：</span>
+                                <span class="detail-value" id="managePluginCount">0 个</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">运行状态：</span>
+                                <span class="detail-value">
+                                    <span class="status-dot running"></span> 运行中
+                                </span>
+                            </div>
+                        </div>
+                        <div class="manage-actions">
+                            <button class="btn btn-secondary" id="restartOpenClawBtn">
+                                <span>🔄</span> 重启
+                            </button>
+                            <button class="btn btn-danger" id="uninstallOpenClawBtn">
+                                <span>🗑️</span> 卸载
+                            </button>
+                            <button class="btn btn-outline" id="openManagePathBtn">
+                                <span>📂</span> 打开目录
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 卸载进度 -->
+                    <div class="uninstall-progress hidden" id="uninstallProgress">
+                        <div class="progress-header">
+                            <span class="progress-title">正在卸载 OpenClaw...</span>
+                            <span class="progress-percent" id="uninstallProgressPercent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="uninstallProgressFill"></div>
+                        </div>
+                        <div class="progress-message" id="uninstallProgressMessage">准备中...</div>
+                    </div>
+
+                    <!-- 已安装插件列表 -->
+                    <div class="installed-plugins-section">
+                        <h3>已安装插件</h3>
+                        <div class="plugin-list" id="installedPluginList">
+                            <!-- 已安装插件将通过 JS 动态生成 -->
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -232,14 +302,8 @@
                         <div class="about-links">
                             <h3>相关链接</h3>
                             <div class="link-list">
-                                <a href="#" class="about-link" id="openWebsite">
-                                    <span>🌐</span> 官方网站
-                                </a>
-                                <a href="#" class="about-link" id="openDocs">
-                                    <span>📖</span> 文档中心
-                                </a>
                                 <a href="#" class="about-link" id="openGithub">
-                                    <span>🐙</span> GitHub
+                                    <span>🐙</span> GitHub 仓库
                                 </a>
                                 <a href="#" class="about-link" id="reportIssue">
                                     <span>🐛</span> 问题反馈
@@ -248,7 +312,7 @@
                         </div>
                     </div>
                     <div class="about-footer">
-                        <p>© 2024 OpenClaw Team. All rights reserved.</p>
+                        <p>© 2024 Almmor. All rights reserved.</p>
                         <p>Licensed under MIT License</p>
                     </div>
                 </div>

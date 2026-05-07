@@ -1,5 +1,5 @@
 // 引入 Electron API
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, shell } = require('electron');
 
 // 全局状态
 let plugins = {};
@@ -16,6 +16,7 @@ const elements = {
     installPath: document.getElementById('installPath'),
     installOpenClawBtn: document.getElementById('installOpenClawBtn'),
     installedBtn: document.getElementById('installedBtn'),
+    manageOpenClawBtn: document.getElementById('manageOpenClawBtn'),
     installAllBtn: document.getElementById('installAllBtn'),
     selectPathBtn: document.getElementById('selectPathBtn'),
     installProgress: document.getElementById('installProgress'),
@@ -25,7 +26,18 @@ const elements = {
     progressDetails: document.getElementById('progressDetails'),
     toastContainer: document.getElementById('toastContainer'),
     filterTabs: document.querySelectorAll('.tab'),
-    checkUpdateBtn: document.getElementById('checkUpdateBtn')
+    checkUpdateBtn: document.getElementById('checkUpdateBtn'),
+    // 管理页面元素
+    restartOpenClawBtn: document.getElementById('restartOpenClawBtn'),
+    uninstallOpenClawBtn: document.getElementById('uninstallOpenClawBtn'),
+    openManagePathBtn: document.getElementById('openManagePathBtn'),
+    manageInstallPath: document.getElementById('manageInstallPath'),
+    managePluginCount: document.getElementById('managePluginCount'),
+    uninstallProgress: document.getElementById('uninstallProgress'),
+    uninstallProgressFill: document.getElementById('uninstallProgressFill'),
+    uninstallProgressPercent: document.getElementById('uninstallProgressPercent'),
+    uninstallProgressMessage: document.getElementById('uninstallProgressMessage'),
+    installedPluginList: document.getElementById('installedPluginList')
 };
 
 // 初始化
@@ -34,7 +46,9 @@ async function init() {
     setupEventListeners();
     renderQuickPlugins();
     renderPluginList();
+    renderInstalledPlugins();
     checkOpenClawStatus();
+    setupManageEvents();
 }
 
 // 加载数据
@@ -90,24 +104,14 @@ function setupEventListeners() {
     elements.checkUpdateBtn.addEventListener('click', checkUpdates);
 
     // 关于页面链接
-    document.getElementById('openWebsite')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        ipcRenderer.invoke('open-plugin-details', 'openclaw');
-    });
-
-    document.getElementById('openDocs')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        ipcRenderer.invoke('open-plugin-details', 'openclaw');
-    });
-
     document.getElementById('openGithub')?.addEventListener('click', (e) => {
         e.preventDefault();
-        ipcRenderer.invoke('open-plugin-details', 'openclaw');
+        shell.openExternal('https://github.com/Almmor/openclaw-installer');
     });
 
     document.getElementById('reportIssue')?.addEventListener('click', (e) => {
         e.preventDefault();
-        ipcRenderer.invoke('open-plugin-details', 'openclaw');
+        shell.openExternal('https://github.com/Almmor/openclaw-installer/issues');
     });
 
     // 监听安装进度
@@ -122,6 +126,154 @@ function setupEventListeners() {
     ipcRenderer.on('install-all-progress', (event, data) => {
         updateProgress(data.progress, data.message, data.pluginName);
     });
+
+    // 监听卸载进度
+    ipcRenderer.on('uninstall-progress', (event, data) => {
+        updateUninstallProgress(data.progress, data.message);
+    });
+
+    // 监听重启进度
+    ipcRenderer.on('restart-progress', (event, data) => {
+        updateProgress(data.progress, data.message);
+    });
+}
+
+// 设置管理页面事件
+function setupManageEvents() {
+    // 管理 OpenClaw 按钮
+    elements.manageOpenClawBtn?.addEventListener('click', () => {
+        switchPage('manage');
+        elements.navItems.forEach(nav => nav.classList.remove('active'));
+        document.querySelector('[data-page="manage"]')?.classList.add('active');
+    });
+
+    // 重启 OpenClaw
+    elements.restartOpenClawBtn?.addEventListener('click', restartOpenClaw);
+
+    // 卸载 OpenClaw
+    elements.uninstallOpenClawBtn?.addEventListener('click', uninstallOpenClaw);
+
+    // 打开安装目录
+    elements.openManagePathBtn?.addEventListener('click', () => {
+        const path = elements.manageInstallPath.textContent;
+        ipcRenderer.invoke('open-install-path', path);
+    });
+}
+
+// 渲染已安装插件列表
+function renderInstalledPlugins() {
+    if (!elements.installedPluginList) return;
+    
+    elements.installedPluginList.innerHTML = '';
+    
+    const installedPlugins = Object.entries(plugins).filter(([id, plugin]) => plugin.installed);
+    
+    if (installedPlugins.length === 0) {
+        elements.installedPluginList.innerHTML = '<p class="no-plugins">暂无已安装的插件</p>';
+        return;
+    }
+    
+    installedPlugins.forEach(([id, plugin]) => {
+        const item = createPluginListItem(id, plugin);
+        elements.installedPluginList.appendChild(item);
+    });
+    
+    // 更新插件计数
+    if (elements.managePluginCount) {
+        elements.managePluginCount.textContent = `${installedPlugins.length} 个`;
+    }
+}
+
+// 重启 OpenClaw
+async function restartOpenClaw() {
+    showToast('info', '重启中', '正在重启 OpenClaw...');
+    
+    try {
+        const result = await ipcRenderer.invoke('restart-openclaw');
+        
+        if (result.success) {
+            showToast('success', '重启成功', result.message);
+        } else {
+            showToast('error', '重启失败', result.message);
+        }
+    } catch (error) {
+        showToast('error', '错误', error.message);
+    }
+}
+
+// 卸载 OpenClaw
+async function uninstallOpenClaw() {
+    if (!confirm('确定要卸载 OpenClaw 吗？这将同时卸载所有已安装的插件。')) {
+        return;
+    }
+    
+    elements.uninstallProgress?.classList.remove('hidden');
+    updateUninstallProgress(0, '准备卸载 OpenClaw...');
+    
+    try {
+        const result = await ipcRenderer.invoke('uninstall-openclaw');
+        
+        if (result.success) {
+            showToast('success', '卸载成功', result.message);
+            
+            // 更新界面状态
+            openclawInfo.installed = false;
+            openclawInfo.installPath = '';
+            
+            // 重置所有插件状态
+            Object.keys(plugins).forEach(id => {
+                plugins[id].installed = false;
+                plugins[id].installPath = '';
+            });
+            
+            // 隐藏管理按钮，显示安装按钮
+            elements.manageOpenClawBtn?.classList.add('hidden');
+            elements.installOpenClawBtn?.classList.remove('hidden');
+            elements.installOpenClawBtn.disabled = false;
+            elements.installOpenClawBtn.innerHTML = '<span class="btn-icon">⬇️</span><span>一键安装 OpenClaw</span>';
+            
+            // 更新界面
+            renderQuickPlugins();
+            renderPluginList();
+            renderInstalledPlugins();
+            
+            // 更新管理页面信息
+            if (elements.manageInstallPath) {
+                elements.manageInstallPath.textContent = '未安装';
+            }
+            if (elements.managePluginCount) {
+                elements.managePluginCount.textContent = '0 个';
+            }
+            
+            // 返回首页
+            setTimeout(() => {
+                switchPage('home');
+                elements.navItems.forEach(nav => nav.classList.remove('active'));
+                document.querySelector('[data-page="home"]')?.classList.add('active');
+            }, 2000);
+        } else {
+            showToast('error', '卸载失败', result.message);
+        }
+    } catch (error) {
+        showToast('error', '错误', error.message);
+    } finally {
+        setTimeout(() => {
+            elements.uninstallProgress?.classList.add('hidden');
+        }, 2000);
+    }
+}
+
+// 更新卸载进度
+function updateUninstallProgress(percent, message) {
+    if (elements.uninstallProgressFill) {
+        elements.uninstallProgressFill.style.width = `${percent}%`;
+    }
+    if (elements.uninstallProgressPercent) {
+        elements.uninstallProgressPercent.textContent = `${percent}%`;
+    }
+    if (elements.uninstallProgressMessage) {
+        elements.uninstallProgressMessage.textContent = message;
+    }
 }
 
 // 切换页面
@@ -134,16 +286,6 @@ function switchPage(pageName) {
     if (targetPage) {
         targetPage.classList.add('active');
     }
-
-    // 更新页面标题
-    const titles = {
-        home: '欢迎使用 OpenClaw 安装器',
-        plugins: '插件管理',
-        settings: '设置',
-        about: '关于'
-    };
-    
-    document.querySelector('.page-title').textContent = titles[pageName] || 'OpenClaw Installer';
 }
 
 // 渲染快速安装插件卡片
@@ -471,3 +613,5 @@ window.installPlugin = installPlugin;
 window.uninstallPlugin = uninstallPlugin;
 window.openPluginPath = openPluginPath;
 window.viewPluginDetails = viewPluginDetails;
+window.restartOpenClaw = restartOpenClaw;
+window.uninstallOpenClaw = uninstallOpenClaw;

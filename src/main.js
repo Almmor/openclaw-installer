@@ -77,14 +77,15 @@ function createWindow() {
     height: 800,
     minWidth: 900,
     minHeight: 600,
+    icon: path.join(__dirname, '../assets/icon.ico'),
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true
     },
-    titleBarStyle: 'hiddenInset',
     show: false,
-    backgroundColor: '#f5f7fa'
+    backgroundColor: '#f5f7fa',
+    title: 'OpenClaw Installer'
   });
 
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
@@ -178,6 +179,59 @@ ipcMain.handle('install-openclaw', async (event, installPath) => {
     OPENCLAW_CONFIG.installPath = installPath || 'C:\\Program Files\\OpenClaw';
     
     return { success: true, message: 'OpenClaw 安装成功！' };
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+});
+
+// 卸载 OpenClaw
+ipcMain.handle('uninstall-openclaw', async (event) => {
+  try {
+    const steps = [
+      { message: '正在检查安装文件...', progress: 10 },
+      { message: '正在卸载插件...', progress: 30 },
+      { message: '正在清理配置...', progress: 50 },
+      { message: '正在移除环境变量...', progress: 70 },
+      { message: '正在完成卸载...', progress: 90 },
+      { message: '卸载完成！', progress: 100 }
+    ];
+    
+    for (const step of steps) {
+      await new Promise(resolve => setTimeout(resolve, 700));
+      event.sender.send('uninstall-progress', step);
+    }
+    
+    OPENCLAW_CONFIG.installed = false;
+    const installPathBackup = OPENCLAW_CONFIG.installPath;
+    OPENCLAW_CONFIG.installPath = '';
+    
+    // 卸载所有插件
+    Object.keys(PLUGINS).forEach(pluginId => {
+      PLUGINS[pluginId].installed = false;
+      PLUGINS[pluginId].installPath = '';
+    });
+    
+    return { success: true, message: 'OpenClaw 已完全卸载', installPath: installPathBackup };
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+});
+
+// 重启 OpenClaw
+ipcMain.handle('restart-openclaw', async (event) => {
+  try {
+    const steps = [
+      { message: '正在关闭 OpenClaw...', progress: 30 },
+      { message: '正在重新启动...', progress: 70 },
+      { message: '启动完成！', progress: 100 }
+    ];
+    
+    for (const step of steps) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      event.sender.send('restart-progress', step);
+    }
+    
+    return { success: true, message: 'OpenClaw 已重启！' };
   } catch (error) {
     return { success: false, message: error.message };
   }
