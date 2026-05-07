@@ -1288,3 +1288,59 @@ body {
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
 }
+
+/* ========================================
+   配置编辑器样式
+   ======================================== */
+
+.config-editor {
+    margin-bottom: 16px;
+}
+
+.config-textarea {
+    width: 100%;
+    min-height: 300px;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    resize: vertical;
+    outline: none;
+    transition: border-color var(--transition-fast);
+}
+
+.config-textarea:focus {
+    border-color: var(--primary-color);
+}
+
+.config-textarea::placeholder {
+    color: #6a6a6a;
+}
+
+.config-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.command-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.command-input {
+    flex: 1;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+}
+
+.quick-commands {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}

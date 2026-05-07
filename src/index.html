@@ -40,7 +40,7 @@
                 <button class="btn btn-secondary btn-small" id="checkUpdateBtn">
                     <span>🔄</span> 检查更新
                 </button>
-                <div class="version">v1.1.0</div>
+                <div class="version">v1.2.0</div>
             </div>
         </aside>
 
@@ -208,9 +208,80 @@
             <!-- 设置页面 -->
             <div class="page" id="settings-page">
                 <div class="settings-container">
-                    <h2>设置</h2>
+                    <h2>⚙️ OpenClaw 配置</h2>
+
+                    <!-- 配置文件路径 -->
                     <div class="settings-section">
-                        <h3>常规设置</h3>
+                        <h3>配置文件</h3>
+                        <div class="setting-item">
+                            <label class="setting-label">
+                                <span>配置文件路径</span>
+                                <span class="setting-desc">OpenClaw 的配置文件位置</span>
+                            </label>
+                            <div class="path-input-group">
+                                <input type="text" class="setting-input" id="configFilePath" value="" readonly>
+                                <button class="btn btn-outline" id="browseConfigBtn">浏览</button>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <label class="setting-label">
+                                <span>npm 全局路径</span>
+                                <span class="setting-desc">npm 全局安装包的位置</span>
+                            </label>
+                            <div class="path-input-group">
+                                <input type="text" class="setting-input" id="npmGlobalPath" value="" readonly>
+                                <button class="btn btn-outline" id="openNpmPathBtn">打开</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 配置编辑器 -->
+                    <div class="settings-section">
+                        <h3>配置编辑器</h3>
+                        <div class="config-editor">
+                            <textarea id="configEditor" class="config-textarea" placeholder="点击「加载配置」读取 OpenClaw 配置文件..." spellcheck="false"></textarea>
+                        </div>
+                        <div class="config-actions">
+                            <button class="btn btn-primary" id="loadConfigBtn">
+                                <span>📂</span> 加载配置
+                            </button>
+                            <button class="btn btn-success" id="saveConfigBtn">
+                                <span>💾</span> 保存配置
+                            </button>
+                            <button class="btn btn-outline" id="resetConfigBtn">
+                                <span>🔄</span> 重置默认
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 快捷命令 -->
+                    <div class="settings-section">
+                        <h3>快捷命令</h3>
+                        <div class="setting-item">
+                            <label class="setting-label">
+                                <span>自定义命令</span>
+                                <span class="setting-desc">输入 PowerShell 命令并执行</span>
+                            </label>
+                        </div>
+                        <div class="command-row">
+                            <input type="text" class="setting-input command-input" id="customCommand" placeholder="例如: npm list -g --depth=0">
+                            <button class="btn btn-primary" id="runCustomCmdBtn">
+                                <span>▶</span> 执行
+                            </button>
+                        </div>
+                        <div class="quick-commands">
+                            <button class="btn btn-outline btn-small" data-cmd="npm list -g --depth=0">查看已安装包</button>
+                            <button class="btn btn-outline btn-small" data-cmd="npm view openclaw">查看 openclaw 信息</button>
+                            <button class="btn btn-outline btn-small" data-cmd="npm outdated -g">检查过期包</button>
+                            <button class="btn btn-outline btn-small" data-cmd="npm cache clean --force">清理 npm 缓存</button>
+                            <button class="btn btn-outline btn-small" data-cmd="node --version">Node 版本</button>
+                            <button class="btn btn-outline btn-small" data-cmd="npm --version">npm 版本</button>
+                        </div>
+                    </div>
+
+                    <!-- 应用设置 -->
+                    <div class="settings-section">
+                        <h3>应用设置</h3>
                         <div class="setting-item">
                             <label class="setting-label">
                                 <span>自动检查更新</span>
@@ -223,57 +294,13 @@
                         </div>
                         <div class="setting-item">
                             <label class="setting-label">
-                                <span>显示安装日志</span>
-                                <span class="setting-desc">安装过程中显示详细日志信息</span>
+                                <span>安装时显示日志窗口</span>
+                                <span class="setting-desc">安装/卸载时自动打开日志窗口</span>
                             </label>
                             <label class="toggle">
-                                <input type="checkbox">
+                                <input type="checkbox" checked>
                                 <span class="toggle-slider"></span>
                             </label>
-                        </div>
-                    </div>
-                    <div class="settings-section">
-                        <h3>下载设置</h3>
-                        <div class="setting-item">
-                            <label class="setting-label">
-                                <span>下载源</span>
-                                <span class="setting-desc">选择软件包下载源</span>
-                            </label>
-                            <select class="setting-select">
-                                <option value="github">GitHub (默认)</option>
-                                <option value="gitee">Gitee (国内镜像)</option>
-                                <option value="custom">自定义</option>
-                            </select>
-                        </div>
-                        <div class="setting-item">
-                            <label class="setting-label">
-                                <span>并发下载数</span>
-                                <span class="setting-desc">同时下载的插件数量</span>
-                            </label>
-                            <input type="number" class="setting-input" value="3" min="1" max="10">
-                        </div>
-                    </div>
-                    <div class="settings-section">
-                        <h3>存储设置</h3>
-                        <div class="setting-item">
-                            <label class="setting-label">
-                                <span>默认安装路径</span>
-                                <span class="setting-desc">软件和插件的默认安装位置</span>
-                            </label>
-                            <div class="path-input-group">
-                                <input type="text" class="setting-input" value="C:\Program Files\OpenClaw" readonly>
-                                <button class="btn btn-outline">更改</button>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <label class="setting-label">
-                                <span>缓存目录</span>
-                                <span class="setting-desc">下载文件的临时存储位置</span>
-                            </label>
-                            <div class="path-input-group">
-                                <input type="text" class="setting-input" value="%TEMP%\OpenClaw" readonly>
-                                <button class="btn btn-outline">清理</button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -285,7 +312,7 @@
                     <div class="about-header">
                         <div class="about-logo">🐾</div>
                         <h2>OpenClaw Installer</h2>
-                        <p class="about-version">版本 1.0.0</p>
+                        <p class="about-version">版本 1.2.0</p>
                     </div>
                     <div class="about-content">
                         <p>OpenClaw Installer 是一个简洁现代的桌面应用程序，帮助用户轻松安装和管理 OpenClaw 框架及其插件。</p>
