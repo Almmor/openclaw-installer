@@ -469,13 +469,21 @@ async function installAll() {
     elements.installAllBtn.innerHTML = '<span class="btn-icon">⏳</span><span>安装中...</span>';
     showProgress();
     try {
-        const result = await ipcRenderer.invoke('install-all', pkgArray);
+        // 检测 openclaw 是否已安装
+        const openclawStatus = await ipcRenderer.invoke('check-openclaw-installed');
+        const installOpenclaw = !openclawStatus.installed;
+        
+        const result = await ipcRenderer.invoke('install-all', { 
+            plugins: pkgArray, 
+            installOpenclaw: installOpenclaw 
+        });
         showToast(result.success ? 'success' : 'error', result.success ? '安装完成' : '安装失败', result.message);
         selectedPlugins.clear();
         await loadData();
         renderQuickPlugins();
         renderPluginList();
         renderInstalledPlugins();
+        checkOpenClawStatus();
     } catch (error) {
         showToast('error', '错误', error.message);
     } finally {

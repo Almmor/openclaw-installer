@@ -360,20 +360,32 @@ ipcMain.handle('update-openclaw', async (event) => {
 });
 
 // 一键安装所有
-ipcMain.handle('install-all', async (event, selectedPlugins) => {
+ipcMain.handle('install-all', async (event, options) => {
     try {
+        const { plugins, installOpenclaw } = options;
         const isWin = process.platform === 'win32';
         const joinCmd = isWin ? ' & ' : ' && ';
         
-        let commands = ['npm install -g openclaw'];
-        selectedPlugins.forEach(pkg => {
+        let commands = [];
+        
+        // 只有在 openclaw 未安装时才安装
+        if (installOpenclaw) {
+            commands.push('npm install -g openclaw');
+        }
+        
+        // 安装选中的插件
+        plugins.forEach(pkg => {
             commands.push(`npm install -g ${pkg}`);
         });
+        
+        if (commands.length === 0) {
+            return { success: true, message: '没有需要安装的组件' };
+        }
         
         await execInSystemTerminal(commands.join(joinCmd));
         
         mainWindow?.webContents.send('install-all-progress', { phase: 'complete', message: '命令已执行', progress: 100 });
-        return { success: true, message: '一键安装命令已在系统终端中执行' };
+        return { success: true, message: installOpenclaw ? 'OpenClaw 和插件安装命令已执行' : '插件安装命令已执行' };
     } catch (error) {
         return { success: false, message: error.message };
     }
